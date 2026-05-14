@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 歐皇神話至尊盲盒 - 營運專版</title>
+    <style>
+        :root {
+            --primary: #ff4e50;
+            --dark-bg: #0b0c10;
+            --card-bg: #14161d;
+            --border-color: #222530;
+            --gold: #fbc02d;
+            --red: #eb4b4b;
+            --pink: #d32ce6;
+            --purple: #8847ff;
+            --blue: #4b69ff;
+        }
+
+        body {
+            font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--dark-bg);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            background-color: #07080b;
+            padding: 15px 0;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .logo { font-size: 22px; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .balance { background-color: rgba(251, 192, 45, 0.1); border: 1px solid var(--gold); padding: 6px 15px; border-radius: 20px; color: var(--gold); font-weight: bold; }
+
+        .container { max-width: 900px; width: 95%; margin: 20px auto; }
+
+        .notice-banner { background: rgba(255,78,80,0.1); border: 1px solid #ff4e5055; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 13px; color: #ff9999; }
+
+        .cdk-section { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; }
+        .cdk-input { background: #000; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; color: white; width: 200px; }
+
+        .machine-box { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 25px; }
+
+        .roulette-viewport {
+            width: 100%; height: 140px; background: #07080a; border: 2px solid #2d313d;
+            border-radius: 4px; position: relative; overflow: hidden; margin: 20px 0;
+        }
+        
+        .roulette-viewport.fullscreen-focus {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1.1);
+            width: 90vw; z-index: 9999; box-shadow: 0 0 100px #000;
+        }
+
+        .pointer { position: absolute; left: 50%; top: 0; width: 2px; height: 100%; background: var(--gold); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 10px var(--gold); }
+        .roulette-track { display: flex; position: absolute; left: 0; top: 15px; height: 110px; }
+
+        .skin-card {
+            width: 120px; height: 110px; background: rgba(30, 33, 41, 0.4); margin: 0 2px;
+            flex-shrink: 0; border-bottom: 5px solid #888; display: flex; flex-direction: column;
+            justify-content: space-between; align-items: center; padding: 10px 5px; box-sizing: border-box;
+        }
+        .skin-card img { width: 80px; height: 55px; object-fit: contain; }
+        .skin-name { font-size: 10px; color: #ced4da; white-space: nowrap; overflow: hidden; width: 100%; }
+
+        .rarity-red { border-bottom-color: var(--red); }
+        .rarity-purple { border-bottom-color: var(--purple); }
+        .rarity-blue { border-bottom-color: var(--blue); }
+        .rarity-gold { border-bottom-color: var(--gold); }
+
+        .skip-control { margin-bottom: 15px; display: block; color: #aaa; cursor: pointer; }
+        .btn { background: linear-gradient(135deg, var(--primary), #d9383a); border: none; color: white; padding: 12px 25px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 15px; }
+        .inv-item { background: #0f1015; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center; }
+        .inv-item img { width: 60px; }
+
+        .fullscreen-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .reward-card { width: 150px; background: #1a1c24; border-radius: 12px; padding: 15px; margin: 10px; border: 1px solid var(--border-color); text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">CS2 歐皇神話至尊盲盒</div>
+        <div class="balance" id="balance-val">0 金幣</div>
+    </header>
+
+    <div class="container">
+        <div class="notice-banner">
+            ⚠️ 本平台爆率經由第三方審核，公平透明。所有道具僅供提取至 Steam 背包，不設回收。
+        </div>
+
+        <div class="cdk-section">
+            <input type="text" class="cdk-input" id="cdk-input" placeholder="輸入 CD-Key 充值">
+            <button class="btn" onclick="redeemCDK()">立即充值</button>
+        </div>
+
+        <div class="machine-box">
+            <h2 id="machine-title">🔫 至尊主戰槍機台</h2>
+            <p style="color: var(--gold);">單次抽獎：2 金幣</p>
+
+            <div class="roulette-viewport" id="roulette-viewport-id">
+                <div class="pointer"></div>
+                <div class="roulette-track" id="roulette-track"></div>
+            </div>
+
+            <label class="skip-control">
+                <input type="checkbox" id="skip-animation-checkbox"> ⚡ 跳過動畫（秒速開箱）
+            </label>
+
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button class="btn" id="spin-btn-1" onclick="startSpin(1)">單抽</button>
+                <button class="btn" id="spin-btn-5" style="background: #7b1fa2;" onclick="startSpin(5)">五連抽</button>
+            </div>
+        </div>
+
+        <div class="cdk-section" style="text-align:left;">
+            <h3>🎒 存儲背包</h3>
+            <div class="inventory-grid" id="inventory-grid"></div>
+        </div>
+    </div>
+
+    <div class="fullscreen-modal" id="reward-modal">
+        <h1 style="color: var(--gold);">恭喜獲得</h1>
+        <div id="reward-container" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
+        <button class="btn" onclick="closeModal()" style="margin-top:20px;">收下獎勵</button>
+    </div>
+
+    <script>
+        // --- 初始化數據 ---
+        let balance = parseInt(localStorage.getItem('cs_balance')) || 0;
+        let inventory = JSON.parse(localStorage.getItem('cs_inventory')) || [];
+        let localSpinCount = parseInt(localStorage.getItem('cs_spin_total')) || 0;
+        let sessionSpent = 0; // 追蹤使咗幾多錢嚟解鎖大獎
+
+        const MACHINES = {
+            guns: {
+                cost: 2,
+                redPrizes: [{ name: "AK-47 | 火蛇 (紅色)", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVwgdKYehLQyeUhY_IA_O3hld18rMld_kW4ieYxdKz8bPDbYgKqN-g-r2t1WSv3R8fKx38fdX01_Ignv4beYJAJu7PzHeDNL4t-klY6FkvX3b_WGlT9XvZEpju_E9N2g2VfsrkE9MTrnd9SdeAY8NFDYr1K_ye_mjsS7tIOvsw", rarity: "rarity-red" }],
+                purplePrizes: [{ name: "Glock-18 | 時尚 (紫色)", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVwgdKYehLQyeUhY_IA_O3hld18rMld_kW4ieYxdKz8bPDbYgKqN-g-r5t1WSv2U8vqn38fdVkt_LAtosreYJAJu7PzHeDNL69SxlI6Fm_X3O-OFkT9XvZEpju_E9Niz3lfsrkM9MTynd9SdeAY8M1DYr1O6xOzoisS7tIO78Q", rarity: "rarity-purple" }],
+                bluePrizes: [{ name: "P250 | 漣漪 (藍色)", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVwgdKYehLQyeUhY_IA_O3hld18rMld_kW4ieYxdKz8bPDbYgKqN-g-r5t1WSv2U8vqn38fdVkt_LAtosreYJAJu7PzHeDNL69SxlI6Fm_X3O-OFkT9XvZEpju_E9Niz3lfsrkM9MTynd9SdeAY8M1DYr1O6xOzoisS7tIO78Q", rarity: "rarity-blue" }],
+                grandPrizes: [{ name: "★ 爪子刀 | 傳說 (金色)", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVwgdKYehLQyeUhY_IA_O3hld18rMld_kW4ieYxdKz8bPDbYgKqN-g-r805WSv_S-Oun38fdV1t_LQZosreYJAhv7PvHfDxL69mkkY6FlvX3Z6-FkT9XvZEpju_E9Nym0VbkrRE-Yzund9SdewY7Ml_U_wTo28S4S8Sj_A", rarity: "rarity-gold" }]
+            }
+        };
+        let currentMachine = 'guns';
+
+        // --- 核心收割算法 ---
+        function getRiggedSkin() {
+            const m = MACHINES[currentMachine];
+            
+            // 1. 救命草：餘額得返 1-2 抽嘅錢，必出一把紫色
+            if (balance < (m.cost * 3) && balance >= m.cost) {
+                return m.purplePrizes[0];
+            }
+
+            // 2. 紅色大獎鎖：session 內消費滿 200 金幣先出一把
+            if (sessionSpent >= 200) {
+                sessionSpent = 0; 
+                return m.redPrizes[0];
+            }
+
+            // 3. 紫色節奏：每 12 抽出一把 (你有 60 把貨，唔驚派)
+            if (localSpinCount % 12 === 0) {
+                return m.purplePrizes[0];
+            }
+
+            // 4. 墊底全部藍色 (保證賺錢)
+            return m.bluePrizes[0];
+        }
+
+        // --- 視覺誘導滾輪 ---
+        function setupTrack(winSkin) {
+            const track = document.getElementById('roulette-track');
+            track.innerHTML = '';
+            for(let i=0; i<85; i++) {
+                let skin;
+                if(i === 65) {
+                    skin = winSkin;
+                } else {
+                    let r = Math.random();
+                    // 視覺誘導：隨機閃過紅皮/金皮
+                    if(r < 0.05) skin = MACHINES[currentMachine].redPrizes[0];
+                    else if(r < 0.15) skin = MACHINES[currentMachine].purplePrizes[0];
+                    else skin = MACHINES[currentMachine].bluePrizes[0];
+                }
+                const card = document.createElement('div');
+                card.className = `skin-card ${skin.rarity}`;
+                card.innerHTML = `<img src="${skin.img}"><div class="skin-name">${skin.name}</div>`;
+                track.appendChild(card);
+            }
+        }
+
+        let isSpinning = false;
+        function startSpin(num) {
+            if (isSpinning) return;
+            const cost = MACHINES[currentMachine].cost * num;
+            if (balance < cost) { alert("金幣不足！"); return; }
+
+            balance -= cost;
+            sessionSpent += cost;
+            let results = [];
+            for(let i=0; i<num; i++) {
+                localSpinCount++;
+                let s = getRiggedSkin();
+                results.push(s);
+                inventory.push(s);
+            }
+            updateUI();
+
+            if(document.getElementById('skip-animation-checkbox').checked) {
+                showRewards(results);
+                return;
+            }
+
+            // 播放動畫
+            isSpinning = true;
+            document.getElementById('spin-btn-1').disabled = true;
+            document.getElementById('spin-btn-5').disabled = true;
+            
+            const viewport = document.getElementById('roulette-viewport-id');
+            viewport.classList.add('fullscreen-focus');
+            setupTrack(results[results.length-1]);
+
+            const track = document.getElementById('roulette-track');
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0px)';
+
+            setTimeout(() => {
+                const offset = -(65 * 124) + (viewport.offsetWidth/2) - 62;
+                track.style.transition = 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)';
+                track.style.transform = `translateX(${offset}px)`;
+            }, 50);
+
+            setTimeout(() => {
+                isSpinning = false;
+                viewport.classList.remove('fullscreen-focus');
+                document.getElementById('spin-btn-1').disabled = false;
+                document.getElementById('spin-btn-5').disabled = false;
+                showRewards(results);
+            }, 8500);
+        }
+
+        function showRewards(skins) {
+            const container = document.getElementById('reward-container');
+            container.innerHTML = '';
+            skins.forEach(s => {
+                const div = document.createElement('div');
+                div.className = `reward-card ${s.rarity}`;
+                div.innerHTML = `<img src="${s.img}" style="width:100px;"><p>${s.name}</p>`;
+                container.appendChild(div);
+            });
+            document.getElementById('reward-modal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('reward-modal').style.display = 'none'; }
+
+        function updateUI() {
+            document.getElementById('balance-val').innerText = balance + " 金幣";
+            localStorage.setItem('cs_balance', balance);
+            localStorage.setItem('cs_inventory', JSON.stringify(inventory));
+            localStorage.setItem('cs_spin_total', localSpinCount);
+            
+            const grid = document.getElementById('inventory-grid');
+            grid.innerHTML = '';
+            inventory.slice().reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'inv-item';
+                div.innerHTML = `<img src="${item.img}"><div style="font-size:10px;">${item.name}</div>`;
+                grid.appendChild(div);
+            });
+        }
+
+        function redeemCDK() {
+            const code = document.getElementById('cdk-input').value;
+            if(code.length > 3) {
+                balance += 100; // 測試用，任何 code 都加 100
+                alert("充值成功！100 金幣已到賬");
+                updateUI();
+            }
+        }
+
+        setupTrack(MACHINES.guns.bluePrizes[0]);
+        updateUI();
+    </script>
+</body>
+</html>
